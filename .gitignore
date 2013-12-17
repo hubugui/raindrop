@@ -32,10 +32,5 @@ nosetests.xml
 #Mr Developer
 .mr.developer.cfg
 
-#html
-*.html
-*.htm
-
-*.js
 *.swp
 *.vim
