@@ -1,0 +1,8 @@
+name: oortcloud
+version: 1
+
+cron:
+- description: fetch the url of yahoo picture of the day
+  url: cron/pictureday
+  schedule: every day of month 6:00
+  login: pictureday@fatman
