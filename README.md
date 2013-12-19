@@ -8,12 +8,14 @@ git和svn
 
 初始化
 --------
-cd project home
-svn co https://your svn host/raindrop
-cd raindrop
-git init
-git remote add origin https://github.com/hubugui/raindrop
-git fetch origin
-rm -rf 1
-git merge remotes/origin/master
-svn commit -m 'merge git'
+```python
+* cd project home
+* svn co https://your svn host/raindrop
+* cd raindrop
+* git init
+* git remote add origin https://github.com/hubugui/raindrop
+* git fetch origin
+* rm -rf 1
+* git merge remotes/origin/master
+* svn commit -m 'merge git'
+```
