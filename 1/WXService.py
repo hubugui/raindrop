@@ -83,6 +83,12 @@ class WXService:
     def on_command(self, msg):
         now = datetime.datetime.now()
         cmd = msg.content
+        offset_day = 0
+
+        try:
+            offset_day = int(cmd)
+        except:
+            offset_day = 0 
 
         if cmd in ('i', 'I'):
             yday = now - datetime.timedelta(days=1)
@@ -101,7 +107,7 @@ class WXService:
             msgs = dba.msg_text_query_time(begin, end).list()
             return 0, self.msg_builder.build(msgs, msg.from_user, msg.to_user, int(time.time()))
         elif cmd in ('h', 'H'):
-            text = u"发送URL进行投递，发送i浏览本日的稿件。"
+            text = u"发送URL投稿，发送i获取最新内容，发送-1获取前日内容，依此类推。"
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
         elif cmd in ('v', 'V'):
@@ -114,8 +120,17 @@ class WXService:
             text = u"今日热词：" + fw
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
+        elif offset_day < 0:
+            begin_day = now - datetime.timedelta(days=abs(offset_day-1))
+            end_day = now - datetime.timedelta(days=abs(offset_day))
+
+            # past day
+            begin = self.get_zero_ytc(begin_day, 0)
+            end = self.get_zero_ytc(end_day, 0)
+            msgs = dba.msg_text_query_time(begin, end).list()
+            return 0, self.msg_builder.build(msgs, msg.from_user, msg.to_user, int(time.time()))
         else:
-            result = "'{}' unsupport".format(msg.content)
+            result = "unsupport"
             return -1, result
 
     # process wechat's message
