@@ -115,8 +115,7 @@ class WXService:
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
         elif cmd in ('f', 'F'):
-            begin = self.get_zero_ytc(now, 0)
-            fw = self.msg_favword.FindIn( int(begin) )
+            fw = self.msg_favword.FindIn( now.day )
             text = u"今日热词：" + fw
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
