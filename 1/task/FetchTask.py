@@ -20,13 +20,13 @@ class FetchTask:
         self.title_rec = re.compile("<title>([\s\S]*)</title>")
         self.charset_rec = re.compile("<meta .*?charset *=.+?>")
 
-    def get_title(self, content):
+    def get_title_from_content(self, content):
         mo = self.title_rec.search(content)
         if mo:            
             return mo.group(1).strip()
         return None
 
-    def get_charset(self, content):
+    def get_charset_from_content(self, content):
         mos = self.charset_rec.findall(content)
         for mo in mos:
             mos = re.compile("charset *=.+?\"").findall(mo)
@@ -44,6 +44,7 @@ class FetchTask:
             foo.remove(foo[0])
             url = '-'.join(foo)
 
+            # mark fetch
             dba.msg_text_update_title_contet(id, u'标题抓取ing', '')
 
             try:
@@ -53,21 +54,31 @@ class FetchTask:
                 print data
                 print response.headers
 
-                if 'Content-Encoding' in response.headers:
+                # http header->encoding
+                try:
                     encoding = response.headers['Content-Encoding']
-                else:
-                    encoding = "none"
+                except:
+                    encoding = None
                 if encoding == 'gzip':
                     content = gzip.GzipFile(fileobj = cStringIO.StringIO(content)).read()
 
-                charset = self.get_charset(content)
+                # http header->charset
+                try:
+                    charset = response.headers['Content-Type']
+                except:
+                    charset = None
+
+                # http body->charset
+                if charset is None:
+                    charset = self.get_charset_from_content(content)
                 if charset is None:
                     charset = 'gbk'
 
+                # convert
                 if charset <> 'utf-8':
                     print "unicode convert({})".format(charset)
                     content = unicode(content, charset)
-                title = self.get_title(content)
+                title = self.get_title_from_content(content)
 
                 if title:
                     parser = HTMLParser.HTMLParser()
