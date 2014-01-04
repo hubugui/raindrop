@@ -48,6 +48,16 @@ class WXService:
         zero_time = time.strptime(zero_str, '%Y-%m-%d %H:%M:%S')
         return int(time.mktime(zero_time))
 
+    def z_str2datetime(self, tmstr):
+        tmstr = tmstr.strip()
+        t1 = time.strptime( tmstr, "%Y%m%d" )
+
+        if ( t1.tm_year < 1900 ):
+            print "Big write is failed."
+            t1 = time.strptime( tmstr, "%y%m%d" )
+        d = datetime.datetime(*tuple(t1)[:6])
+        return d
+
     # subscribe and unsubscribe
     def on_event(self, msg):
         msgs = None
@@ -115,7 +125,8 @@ class WXService:
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
         elif cmd in ('f', 'F'):
-            fw = self.msg_favword.FindIn( now.day )
+            begin = self.get_zero_ytc(now, 0)
+            fw = self.msg_favword.FindIn( int(begin) )
             text = u"今日热词：" + fw
             msgs = [{'title':text, 'content':''}]
             return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
@@ -128,6 +139,22 @@ class WXService:
             end = self.get_zero_ytc(end_day, 0)
             msgs = dba.msg_text_query_time(begin, end).list()
             return 0, self.msg_builder.build(msgs, msg.from_user, msg.to_user, int(time.time()))
+        elif offset_day > 0:
+            end_day = self.z_str2datetime( cmd )
+            begin_day = end_day - datetime.timedelta(days=1)
+
+            # past day
+            begin = self.get_zero_ytc(begin_day, 0)
+            end = self.get_zero_ytc(end_day, 0)
+            msgs = dba.msg_text_query_time(begin, end).list()
+            return 0, self.msg_builder.build(msgs, msg.from_user, msg.to_user, int(time.time()))
+
+            # text = u"查询：" + end_day.strftime( "%Y%m%d" ) + "kk" + cmd
+            # text = u"查询1：" + cmd + " kaka" + str2
+            #text = u"查询：" + cmd + " kaka"
+
+            # msgs = [{'title':text, 'content':''}]
+            # return 0, self.msg_builder.to_text(msgs, msg.from_user, msg.to_user, int(time.time()))
         else:
             result = "unsupport"
             return -1, result
