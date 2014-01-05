@@ -36,6 +36,12 @@ class FetchTask:
                 return charset.lower()
         return None
 
+    def get_header_value(response, key):
+        try:
+            return response.headers[key]
+        except:
+            return None
+
     def POST(self):
         data = web.data()
         foo = data.split('-')
@@ -55,18 +61,19 @@ class FetchTask:
                 print response.headers
 
                 # http header->encoding
-                try:
-                    encoding = response.headers['Content-Encoding']
-                except:
-                    encoding = None
+                encoding = get_header_value(response, 'Content-Encoding')
                 if encoding == 'gzip':
                     content = gzip.GzipFile(fileobj = cStringIO.StringIO(content)).read()
 
-                # http header->charset
-                try:
-                    charset = response.headers['Content-Type']
-                except:
-                    charset = None
+                # http header->type
+                charset = None
+                ctype = get_header_value(response, 'Content-Type')
+                if ctype:
+                    # for example: text/html; charset=utf-8
+                    ctype = ctype.lower().replace(' ', '').strip()
+                    foo = ctype.split('text/html;charset=')
+                    if len(foo) == 2 and len(foo[1]) > 0:
+                        charset = foo[1]
 
                 # http body->charset
                 if charset is None:
