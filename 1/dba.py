@@ -37,12 +37,19 @@ def msg_text_update(id, msg):
 
 def msg_text_update_title_contet(id, title, content):
     try:
-        dicts = {'title':title, 'text':content}
-        row_count = db.update('message_text', where='id={}'.format(id), **dicts)
-        if row_count > 0:
-            return row_count, "OK"
+        dicts = {}
+        if title:
+            dicts['title'] = title
+        if content:
+            dicts['text'] = content
+        if len(dicts) > 0:
+            row_count = db.update('message_text', where='id={}'.format(id), **dicts)
+            if row_count > 0:
+                return row_count, "OK"
+            else:
+                return row_count, "message id={} no exist".format(id)
         else:
-            return row_count, "message id={} no exist".format(id)
+            return 0, "parameters is None"
     except:
         s = sys.exc_info()
         print "exception {0} happened on line {1}".format(s[1], s[2].tb_lineno)

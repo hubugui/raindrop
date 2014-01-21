@@ -17,7 +17,7 @@ class FetchTask:
         <title>Portal</title>
     '''
     def __init__(self):
-        self.title_rec = re.compile("<title>([\s\S]*)</title>")
+        self.title_rec = re.compile("[^<!--]<title>([\s\S]*?)</title>")
         self.charset_rec = re.compile("<meta .*?charset *=.+?>")
 
     def get_title_from_content(self, content):
@@ -85,8 +85,10 @@ class FetchTask:
                 if charset <> 'utf-8':
                     print "unicode convert({})".format(charset)
                     content = unicode(content, charset)
-                title = self.get_title_from_content(content)
+                # update content
+                dba.msg_text_update_title_contet(id, None, content)
 
+                title = self.get_title_from_content(content)
                 if title:
                     parser = HTMLParser.HTMLParser()
                     if charset == 'utf-8':
