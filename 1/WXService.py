@@ -78,8 +78,8 @@ class WXService:
     def on_url(self, msg):
         text = None
         msgs = None
+
         id, result = dba.msg_text_insert(msg)
-        print "id", id
         if id > 0:
             text = u"谢谢投递！"
             url = u"{}-{}".format(str(id), msg.content)
@@ -168,7 +168,9 @@ class WXService:
         if isinstance(msg, WXMessageEvent):
             return self.on_event(msg)
         elif isinstance(msg, WXMessageText):
-            if msg.content.startswith("http://"):
+            msg.content = msg.content.lower()
+            if msg.content.startswith("http://") \
+                or msg.content.startswith("https://"):
                 return self.on_url(msg)
             return self.on_command(msg)
         else:
